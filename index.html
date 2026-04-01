@@ -10,30 +10,50 @@ body {
     font-family: Arial;
     background: linear-gradient(135deg, #0f2027, #2c5364);
     color: white;
-    text-align: center;
 }
 
-h1 {
-    margin-top: 10px;
-}
-
-#topo {
+/* TELA INICIAL */
+#inicio {
+    height: 100vh;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#inicio button {
     margin: 10px;
+    padding: 15px 30px;
     font-size: 18px;
 }
 
-#game {
-    display: grid;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 30px;
+/* TOPO */
+#topo {
+    display: none;
+    justify-content: space-between;
+    padding: 10px 40px;
+    font-size: 18px;
 }
 
+/* JOGO CENTRALIZADO */
+#containerJogo {
+    display: none;
+    height: calc(100vh - 60px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* GRID */
+#game {
+    display: grid;
+    gap: 15px;
+}
+
+/* CARTAS MAIORES */
 .card {
-    width: 90px;
-    height: 90px;
+    width: 120px;
+    height: 120px;
     perspective: 1000px;
     cursor: pointer;
 }
@@ -41,7 +61,6 @@ h1 {
 .inner {
     width: 100%;
     height: 100%;
-    position: relative;
     transform-style: preserve-3d;
     transition: transform 0.5s;
 }
@@ -54,7 +73,7 @@ h1 {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     backface-visibility: hidden;
 }
 
@@ -69,21 +88,21 @@ h1 {
 .back img {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
+/* BOLAS */
 #bolaArea {
-    position: absolute;
+    position: fixed;
     top: 10px;
     right: 10px;
-    font-size: 25px;
+    font-size: 30px;
 }
 
+/* GAME OVER */
 #gameOver {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     background: black;
@@ -93,7 +112,6 @@ h1 {
 }
 
 button {
-    padding: 10px 20px;
     border: none;
     background: #1e90ff;
     color: white;
@@ -105,8 +123,14 @@ button {
 
 <body>
 
-<h1>⚽ Jogo da Memória</h1>
+<!-- TELA INICIAL -->
+<div id="inicio">
+    <h1>⚽ Jogo da Memória</h1>
+    <button onclick="iniciarJogo(1)">Fácil (9 pares)</button>
+    <button onclick="iniciarJogo(2)">Difícil (12 pares)</button>
+</div>
 
+<!-- TOPO -->
 <div id="topo">
     <div>Jogador 1: <span id="tempo1">30</span>s | Pontos: <span id="p1">0</span></div>
     <div>Jogador 2: <span id="tempo2">30</span>s | Pontos: <span id="p2">0</span></div>
@@ -114,8 +138,12 @@ button {
 
 <div id="bolaArea"></div>
 
-<div id="game"></div>
+<!-- JOGO -->
+<div id="containerJogo">
+    <div id="game"></div>
+</div>
 
+<!-- GAME OVER -->
 <div id="gameOver">
     <h1>🏆 Game Over</h1>
     <p id="resultado"></p>
@@ -138,7 +166,24 @@ let pontos2 = 0;
 
 let intervalo;
 
-// cria lista de imagens: 1.jpg até 12.jpg
+function iniciarJogo(nivelEscolhido) {
+
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("topo").style.display = "flex";
+    document.getElementById("containerJogo").style.display = "flex";
+
+    nivel = nivelEscolhido;
+    pares = (nivel === 1) ? 9 : 12;
+
+    tempo1 = (nivel === 1) ? 30 : 15;
+    tempo2 = tempo1;
+
+    document.getElementById("tempo1").innerText = tempo1;
+    document.getElementById("tempo2").innerText = tempo2;
+
+    iniciarNivel();
+}
+
 function gerarCartas() {
     let base = [];
     for (let i = 1; i <= pares; i++) {
@@ -151,15 +196,15 @@ function gerarCartas() {
 function iniciarNivel() {
 
     document.getElementById("bolaArea").innerHTML = "";
-
     gerarCartas();
 
     const game = document.getElementById("game");
     game.innerHTML = "";
 
-    game.style.gridTemplateColumns = "repeat(6, 90px)";
+    let colunas = 6;
+    game.style.gridTemplateColumns = `repeat(${colunas}, 120px)`;
 
-    cartas.forEach((img, index) => {
+    cartas.forEach((img) => {
 
         let card = document.createElement("div");
         card.classList.add("card");
@@ -218,12 +263,9 @@ function verificar() {
 
     selecionadas = [];
 
-    trocarJogador();
-    checarFim();
-}
-
-function trocarJogador() {
     jogadorAtual = jogadorAtual === 1 ? 2 : 1;
+
+    checarFim();
 }
 
 function iniciarTempo() {
@@ -250,23 +292,7 @@ function iniciarTempo() {
 function checarFim() {
 
     if (pontos1 + pontos2 === pares) {
-
-        if (nivel === 1) {
-
-            nivel = 2;
-            pares = 12;
-
-            tempo1 = 15;
-            tempo2 = 15;
-
-            document.getElementById("tempo1").innerText = tempo1;
-            document.getElementById("tempo2").innerText = tempo2;
-
-            iniciarNivel();
-
-        } else {
-            finalizar();
-        }
+        finalizar();
     }
 }
 
@@ -285,8 +311,6 @@ function finalizar() {
 
     document.getElementById("gameOver").style.display = "flex";
 }
-
-iniciarNivel();
 </script>
 
 </body>
