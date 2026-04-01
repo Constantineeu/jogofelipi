@@ -17,11 +17,8 @@
       --text: #ffffff;
       --muted: #c9d7e6;
       --danger: #ff6b6b;
-      --success: #41d98b;
       --glass: rgba(255, 255, 255, 0.08);
-      --glass-strong: rgba(255, 255, 255, 0.14);
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      --radius: 18px;
     }
 
     * {
@@ -50,10 +47,6 @@
       background-size: 30px 30px;
       opacity: 0.18;
       pointer-events: none;
-    }
-
-    .hidden {
-      display: none !important;
     }
 
     /* TELA INICIAL */
@@ -106,7 +99,6 @@
       font-size: clamp(2rem, 4vw, 3.4rem);
       margin: 0 0 12px;
       font-weight: bold;
-      color: #fff;
       text-shadow: 0 4px 20px rgba(0,0,0,0.35);
     }
 
@@ -135,17 +127,12 @@
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
       box-shadow: 0 8px 22px rgba(244, 197, 66, 0.28);
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(244, 197, 66, 0.34);
-    }
-
-    .btn:active {
-      transform: scale(0.98);
     }
 
     .btn.secundario {
@@ -154,33 +141,11 @@
       box-shadow: 0 8px 22px rgba(30, 144, 255, 0.25);
     }
 
-    .regras {
-      margin-top: 26px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .regra {
-      background: var(--glass);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 16px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .regra strong {
-      display: block;
-      color: white;
-      margin-bottom: 6px;
-      font-size: 1rem;
-    }
-
     /* ÁREA DO JOGO */
     #areaJogo {
       min-height: 100vh;
       padding: 18px 16px 28px;
+      display: none;
     }
 
     #topo {
@@ -317,10 +282,6 @@
       position: relative;
     }
 
-    .card.disabled {
-      pointer-events: none;
-    }
-
     .card-inner {
       width: 100%;
       height: 100%;
@@ -357,11 +318,10 @@
     .front::before {
       content: "⚽";
       font-size: clamp(2rem, 4vw, 2.6rem);
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
     }
 
     .back {
-      background: var(--card-back);
+      background: #fff;
       transform: rotateY(180deg);
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
       border: 2px solid rgba(255,255,255,0.6);
@@ -372,10 +332,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    .card:hover .front {
-      transform: translateY(-2px);
     }
 
     .card.matched {
@@ -434,19 +390,6 @@
       padding: 32px 24px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.45);
       text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .gameover-card::before {
-      content: "";
-      position: absolute;
-      inset: auto -40px -80px auto;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(244, 197, 66, 0.20), transparent 65%);
-      pointer-events: none;
     }
 
     .gameover-title {
@@ -499,7 +442,6 @@
       color: #fff3c2;
     }
 
-    /* RESPONSIVO */
     @media (max-width: 900px) {
       #topo {
         grid-template-columns: 1fr;
@@ -512,10 +454,6 @@
       #game {
         grid-template-columns: repeat(4, minmax(78px, 120px));
       }
-
-      .regras {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 560px) {
@@ -525,14 +463,6 @@
 
       .inicio-card {
         padding: 30px 18px;
-      }
-
-      .logo {
-        font-size: 2rem;
-      }
-
-      .subtitulo {
-        font-size: 0.96rem;
       }
 
       .btn {
@@ -556,55 +486,25 @@
         grid-template-columns: 1fr;
       }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      .card-inner,
-      .btn,
-      .player-box,
-      #toast {
-        transition: none;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <!-- TOAST -->
   <div id="toast"></div>
 
-  <!-- TELA INICIAL -->
   <section id="inicio">
     <div class="inicio-card">
       <h1 class="logo">⚽ Jogo da Memória</h1>
-      <p class="subtitulo">
-        Encontre os pares de cartas, marque pontos e administre o tempo de cada jogador.
-        Quem terminar com mais pontos vence!
-      </p>
+      <p class="subtitulo">Encontre os pares de cartas e marque pontos.</p>
 
       <div class="botoes">
-        <button class="btn" onclick="iniciarJogo(1)">Fácil · 9 pares</button>
-        <button class="btn secundario" onclick="iniciarJogo(2)">Difícil · 12 pares</button>
-      </div>
-
-      <div class="regras">
-        <div class="regra">
-          <strong>⏱ Tempo individual</strong>
-          Cada jogador tem seu próprio tempo. Quando acabar, a vez passa automaticamente.
-        </div>
-        <div class="regra">
-          <strong>🎯 Pontuação</strong>
-          Cada par encontrado vale 1 ponto.
-        </div>
-        <div class="regra">
-          <strong>🏆 Final</strong>
-          O jogo termina quando todos os pares forem encontrados ou quando os dois tempos acabarem.
-        </div>
+        <button class="btn" id="btnFacil">Fácil · 9 pares</button>
+        <button class="btn secundario" id="btnDificil">Difícil · 12 pares</button>
       </div>
     </div>
   </section>
 
-  <!-- ÁREA DO JOGO -->
-  <main id="areaJogo" class="hidden">
+  <main id="areaJogo">
     <div id="topo">
       <div id="boxP1" class="player-box ativo">
         <div class="player-top">
@@ -660,7 +560,6 @@
     </div>
   </main>
 
-  <!-- GAME OVER -->
   <div id="gameOver">
     <div class="gameover-card">
       <h1 class="gameover-title">🏆 Game Over</h1>
@@ -681,7 +580,7 @@
         </div>
       </div>
 
-      <button class="btn" onclick="reiniciarTudo()">Jogar novamente</button>
+      <button class="btn" id="btnReiniciar">Jogar novamente</button>
     </div>
   </div>
 
@@ -701,4 +600,280 @@
     let jogoFinalizado = false;
 
     const inicio = document.getElementById("inicio");
-    const areaJogo = document.getElementBy<span class="cursor">█</span>
+    const areaJogo = document.getElementById("areaJogo");
+    const game = document.getElementById("game");
+    const toast = document.getElementById("toast");
+
+    document.getElementById("btnFacil").addEventListener("click", () => iniciarJogo(1));
+    document.getElementById("btnDificil").addEventListener("click", () => iniciarJogo(2));
+    document.getElementById("btnReiniciar").addEventListener("click", reiniciarTudo);
+
+    function embaralhar(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function mostrarToast(mensagem) {
+      toast.textContent = mensagem;
+      toast.classList.add("show");
+
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function iniciarJogo(nivelEscolhido) {
+      nivel = nivelEscolhido;
+      pares = nivel === 1 ? 9 : 12;
+
+      tempo1 = nivel === 1 ? 30 : 15;
+      tempo2 = nivel === 1 ? 30 : 15;
+
+      pontos1 = 0;
+      pontos2 = 0;
+      paresEncontrados = 0;
+      jogadorAtual = 1;
+      deck = [];
+      selecionadas = [];
+      bloqueado = false;
+      jogoFinalizado = false;
+
+      inicio.style.display = "none";
+      areaJogo.style.display = "block";
+      document.getElementById("gameOver").style.display = "none";
+
+      criarCartas();
+      renderizarTabuleiro();
+      atualizarHUD();
+      iniciarTempo();
+
+      mostrarToast("Partida iniciada! Vez do Jogador 1.");
+    }
+
+    function criarCartas() {
+      const base = [];
+      for (let i = 1; i <= pares; i++) {
+        base.push(`${i}.jpg`);
+      }
+
+      const duplicadas = [...base, ...base];
+      deck = embaralhar(duplicadas).map((img, index) => ({
+        id: index,
+        img
+      }));
+    }
+
+    function renderizarTabuleiro() {
+      game.innerHTML = "";
+
+      deck.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = item.id;
+        card.dataset.img = item.img;
+        card.dataset.matched = "false";
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face front"></div>
+            <div class="card-face back">
+              <img src="${item.img}" alt="Carta do jogo">
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => virarCarta(card));
+        game.appendChild(card);
+      });
+    }
+
+    function virarCarta(card) {
+      if (jogoFinalizado || bloqueado) return;
+      if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
+      if ((jogadorAtual === 1 && tempo1 <= 0) || (jogadorAtual === 2 && tempo2 <= 0)) return;
+      if (selecionadas.length === 2) return;
+
+      card.classList.add("flipped");
+      selecionadas.push(card);
+
+      if (selecionadas.length === 2) {
+        bloqueado = true;
+        setTimeout(verificarPar, 800);
+      }
+    }
+
+    function verificarPar() {
+      const [c1, c2] = selecionadas;
+      if (!c1 || !c2) {
+        bloqueado = false;
+        return;
+      }
+
+      const acertou = c1.dataset.img === c2.dataset.img;
+
+      if (acertou) {
+        c1.classList.add("matched");
+        c2.classList.add("matched");
+        paresEncontrados++;
+
+        if (jogadorAtual === 1) pontos1++;
+        else pontos2++;
+
+        selecionadas = [];
+        bloqueado = false;
+        atualizarHUD();
+        mostrarToast(`Jogador ${jogadorAtual} encontrou um par!`);
+
+        if (paresEncontrados === pares) {
+          finalizarJogo("Todos os pares foram encontrados!");
+          return;
+        }
+
+        trocarJogador();
+      } else {
+        setTimeout(() => {
+          c1.classList.remove("flipped");
+          c2.classList.remove("flipped");
+          selecionadas = [];
+          bloqueado = false;
+          trocarJogador();
+        }, 350);
+      }
+    }
+
+    function trocarJogador() {
+      if (jogoFinalizado) return;
+
+      const proximo = jogadorAtual === 1 ? 2 : 1;
+      const tempoProximo = proximo === 1 ? tempo1 : tempo2;
+      const tempoAtual = jogadorAtual === 1 ? tempo1 : tempo2;
+
+      if (tempoProximo > 0) {
+        jogadorAtual = proximo;
+      } else if (tempoAtual > 0) {
+        mostrarToast(`Jogador ${proximo} está sem tempo.`);
+      } else {
+        finalizarJogo("Os dois tempos acabaram!");
+        return;
+      }
+
+      atualizarHUD();
+    }
+
+    function iniciarTempo() {
+      clearInterval(intervalo);
+
+      intervalo = setInterval(() => {
+        if (jogoFinalizado) return;
+
+        if (jogadorAtual === 1) {
+          if (tempo1 > 0) tempo1--;
+
+          if (tempo1 <= 0) {
+            tempo1 = 0;
+            atualizarHUD();
+            mostrarToast("Tempo esgotado do Jogador 1!");
+
+            if (tempo2 <= 0) {
+              finalizarJogo("Os dois tempos acabaram!");
+              return;
+            }
+
+            jogadorAtual = 2;
+          }
+        } else {
+          if (tempo2 > 0) tempo2--;
+
+          if (tempo2 <= 0) {
+            tempo2 = 0;
+            atualizarHUD();
+            mostrarToast("Tempo esgotado do Jogador 2!");
+
+            if (tempo1 <= 0) {
+              finalizarJogo("Os dois tempos acabaram!");
+              return;
+            }
+
+            jogadorAtual = 1;
+          }
+        }
+
+        atualizarHUD();
+      }, 1000);
+    }
+
+    function atualizarHUD() {
+      document.getElementById("tempo1").textContent = `${tempo1}s`;
+      document.getElementById("tempo2").textContent = `${tempo2}s`;
+      document.getElementById("p1").textContent = pontos1;
+      document.getElementById("p2").textContent = pontos2;
+      document.getElementById("bolas1").textContent = `⚽ x${pontos1}`;
+      document.getElementById("bolas2").textContent = `⚽ x${pontos2}`;
+
+      const boxP1 = document.getElementById("boxP1");
+      const boxP2 = document.getElementById("boxP2");
+      const badgeP1 = document.getElementById("badgeP1");
+      const badgeP2 = document.getElementById("badgeP2");
+
+      boxP1.classList.toggle("ativo", jogadorAtual === 1 && !jogoFinalizado && tempo1 > 0);
+      boxP2.classList.toggle("ativo", jogadorAtual === 2 && !jogoFinalizado && tempo2 > 0);
+
+      badgeP1.textContent = (jogadorAtual === 1 && tempo1 > 0 && !jogoFinalizado) ? "Sua vez" : (tempo1 <= 0 ? "Sem tempo" : "Aguardando");
+      badgeP2.textContent = (jogadorAtual === 2 && tempo2 > 0 && !jogoFinalizado) ? "Sua vez" : (tempo2 <= 0 ? "Sem tempo" : "Aguardando");
+
+      document.getElementById("tempo1").classList.toggle("tempo-alerta", tempo1 <= 5);
+      document.getElementById("tempo2").classList.toggle("tempo-alerta", tempo2 <= 5);
+
+      const restantes = pares - paresEncontrados;
+      let textoStatus = `Vez do Jogador ${jogadorAtual}<br>Pares restantes: ${restantes}`;
+
+      if (tempo1 <= 0 && tempo2 > 0) {
+        textoStatus = `Jogador 1 sem tempo<br>Vez do Jogador 2`;
+      } else if (tempo2 <= 0 && tempo1 > 0) {
+        textoStatus = `Jogador 2 sem tempo<br>Vez do Jogador 1`;
+      } else if (tempo1 <= 0 && tempo2 <= 0) {
+        textoStatus = `Tempos encerrados<br>Fim da partida`;
+      }
+
+      document.getElementById("statusTexto").innerHTML = textoStatus;
+    }
+
+    function finalizarJogo(motivo) {
+      if (jogoFinalizado) return;
+
+      jogoFinalizado = true;
+      clearInterval(intervalo);
+      bloqueado = true;
+
+      let mensagem = "";
+      if (pontos1 > pontos2) mensagem = "🏅 Jogador 1 venceu!";
+      else if (pontos2 > pontos1) mensagem = "🏅 Jogador 2 venceu!";
+      else mensagem = "🤝 Empate!";
+
+      document.getElementById("motivoFinal").textContent = motivo;
+      document.getElementById("mensagemFinal").textContent =
+        `${mensagem} | Pontuação final — Jogador 1: ${pontos1} x Jogador 2: ${pontos2}`;
+
+      document.getElementById("finalP1").textContent = pontos1;
+      document.getElementById("finalP2").textContent = pontos2;
+      document.getElementById("finalT1").textContent = `Tempo restante: ${tempo1}s`;
+      document.getElementById("finalT2").textContent = `Tempo restante: ${tempo2}s`;
+
+      document.getElementById("gameOver").style.display = "flex";
+      atualizarHUD();
+    }
+
+    function reiniciarTudo() {
+      clearInterval(intervalo);
+      game.innerHTML = "";
+      document.getElementById("gameOver").style.display = "none";
+      areaJogo.style.display = "none";
+      inicio.style.display = "flex";
+    }
+  </script>
+</body>
+</html>
