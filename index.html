@@ -1,326 +1,704 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Memory Soccer Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚽ Jogo da Memória - Futebol</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: linear-gradient(135deg, #0f2027, #2c5364);
-    color: white;
-}
+  <style>
+    :root {
+      --bg-1: #07111f;
+      --bg-2: #0f2740;
+      --bg-3: #163b5c;
+      --card-front: linear-gradient(145deg, #1e90ff, #1560bd);
+      --card-back: #ffffff;
+      --accent: #f4c542;
+      --accent-2: #ffd95e;
+      --text: #ffffff;
+      --muted: #c9d7e6;
+      --danger: #ff6b6b;
+      --success: #41d98b;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(255, 255, 255, 0.14);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
 
-/* TELA INICIAL */
-#inicio {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-#inicio button {
-    margin: 10px;
-    padding: 15px 30px;
-    font-size: 18px;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(244, 197, 66, 0.12), transparent 20%),
+        radial-gradient(circle at top right, rgba(30, 144, 255, 0.16), transparent 22%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+      overflow-x: hidden;
+    }
 
-/* TOPO */
-#topo {
-    display: none;
-    justify-content: space-between;
-    padding: 10px 40px;
-    font-size: 18px;
-}
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
 
-/* JOGO CENTRAL */
-#containerJogo {
-    display: none;
-    height: calc(100vh - 60px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .hidden {
+      display: none !important;
+    }
 
-/* GRID */
-#game {
-    display: grid;
-    gap: 15px;
-}
+    /* TELA INICIAL */
+    #inicio {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
 
-/* CARTAS */
-.card {
-    width: 120px;
-    height: 120px;
-    perspective: 1000px;
-    cursor: pointer;
-}
+    .inicio-card {
+      width: min(720px, 100%);
+      background: rgba(8, 20, 36, 0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      padding: 38px 28px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-.inner {
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-}
+    .inicio-card::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(244, 197, 66, 0.22), transparent 65%);
+      top: -60px;
+      right: -60px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
 
-.card.flipped .inner {
-    transform: rotateY(180deg);
-}
+    .inicio-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(30, 144, 255, 0.18), transparent 65%);
+      bottom: -50px;
+      left: -50px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
 
-.front, .back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    backface-visibility: hidden;
-}
+    .logo {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      margin: 0 0 12px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
 
-.front {
-    background: #1e90ff;
-}
+    .subtitulo {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0 auto 28px;
+      max-width: 560px;
+      line-height: 1.5;
+    }
 
-.back {
-    transform: rotateY(180deg);
-}
+    .botoes {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
 
-.back img {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-}
+    .btn {
+      border: none;
+      color: #08111f;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 14px;
+      padding: 15px 26px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      box-shadow: 0 8px 22px rgba(244, 197, 66, 0.28);
+    }
 
-/* BOLAS SEPARADAS */
-#bolaP1 {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 30px;
-}
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(244, 197, 66, 0.34);
+    }
 
-#bolaP2 {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    font-size: 30px;
-}
+    .btn:active {
+      transform: scale(0.98);
+    }
 
-/* GAME OVER */
-#gameOver {
-    display: none;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: black;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
+    .btn.secundario {
+      background: linear-gradient(135deg, #2aa8ff, #1e90ff);
+      color: white;
+      box-shadow: 0 8px 22px rgba(30, 144, 255, 0.25);
+    }
 
-button {
-    border: none;
-    background: #1e90ff;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-}
-</style>
+    .regras {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .regra {
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .regra strong {
+      display: block;
+      color: white;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    /* ÁREA DO JOGO */
+    #areaJogo {
+      min-height: 100vh;
+      padding: 18px 16px 28px;
+    }
+
+    #topo {
+      max-width: 1100px;
+      margin: 0 auto 18px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .player-box,
+    .status-box {
+      background: rgba(7, 17, 31, 0.62);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+
+    .player-box {
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .player-box.ativo {
+      border-color: rgba(244, 197, 66, 0.65);
+      background: rgba(244, 197, 66, 0.10);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(244, 197, 66, 0.18);
+    }
+
+    .player-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .player-title {
+      font-size: 1.05rem;
+      font-weight: bold;
+    }
+
+    .turno-badge {
+      font-size: 0.78rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      color: var(--muted);
+    }
+
+    .player-box.ativo .turno-badge {
+      background: rgba(244, 197, 66, 0.18);
+      color: #fff4c0;
+    }
+
+    .player-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 110px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .stat-label {
+      font-size: 0.80rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+
+    .tempo-alerta {
+      color: #ffd6d6;
+    }
+
+    .status-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 190px;
+      text-align: center;
+    }
+
+    #statusTexto {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #eef7ff;
+      line-height: 1.45;
+    }
+
+    #containerJogo {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .board-wrap {
+      width: 100%;
+      background: rgba(7, 17, 31, 0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(90px, 120px));
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .card {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      perspective: 1000px;
+      cursor: pointer;
+      border-radius: 18px;
+      position: relative;
+    }
+
+    .card.disabled {
+      pointer-events: none;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.65s ease;
+      border-radius: 18px;
+    }
+
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .front {
+      background: var(--card-front);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow:
+        inset 0 2px 12px rgba(255,255,255,0.14),
+        0 8px 22px rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .front::before {
+      content: "⚽";
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+    }
+
+    .back {
+      background: var(--card-back);
+      transform: rotateY(180deg);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+
+    .back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card:hover .front {
+      transform: translateY(-2px);
+    }
+
+    .card.matched {
+      animation: pulseMatch 0.7s ease;
+    }
+
+    @keyframes pulseMatch {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(10, 18, 30, 0.92);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 30;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* GAME OVER */
+    #gameOver {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 7, 15, 0.82);
+      backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .gameover-card {
+      width: min(620px, 100%);
+      background: linear-gradient(180deg, rgba(9, 21, 37, 0.98), rgba(10, 30, 50, 0.98));
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gameover-card::before {
+      content: "";
+      position: absolute;
+      inset: auto -40px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244, 197, 66, 0.20), transparent 65%);
+      pointer-events: none;
+    }
+
+    .gameover-title {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+    }
+
+    .gameover-sub {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .placares-finais {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 20px 0 24px;
+    }
+
+    .placar-final {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .placar-final h3 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+
+    .placar-final .numero {
+      font-size: 2.3rem;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .placar-final .tempo-final {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    #mensagemFinal {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 18px;
+      color: #fff3c2;
+    }
+
+    /* RESPONSIVO */
+    @media (max-width: 900px) {
+      #topo {
+        grid-template-columns: 1fr;
+      }
+
+      .status-box {
+        order: -1;
+      }
+
+      #game {
+        grid-template-columns: repeat(4, minmax(78px, 120px));
+      }
+
+      .regras {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      #areaJogo {
+        padding: 14px 10px 22px;
+      }
+
+      .inicio-card {
+        padding: 30px 18px;
+      }
+
+      .logo {
+        font-size: 2rem;
+      }
+
+      .subtitulo {
+        font-size: 0.96rem;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      #game {
+        grid-template-columns: repeat(3, minmax(78px, 1fr));
+        gap: 10px;
+      }
+
+      .board-wrap {
+        padding: 14px;
+      }
+
+      .player-stats {
+        flex-direction: column;
+      }
+
+      .placares-finais {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card-inner,
+      .btn,
+      .player-box,
+      #toast {
+        transition: none;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- TELA INICIAL -->
-<div id="inicio">
-    <h1>⚽ Jogo da Memória</h1>
-    <button onclick="iniciarJogo(1)">Fácil (9 pares)</button>
-    <button onclick="iniciarJogo(2)">Difícil (12 pares)</button>
-</div>
+  <!-- TOAST -->
+  <div id="toast"></div>
 
-<!-- TOPO -->
-<div id="topo">
-    <div>Jogador 1: <span id="tempo1">30</span>s | Pontos: <span id="p1">0</span></div>
-    <div>Jogador 2: <span id="tempo2">30</span>s | Pontos: <span id="p2">0</span></div>
-</div>
+  <!-- TELA INICIAL -->
+  <section id="inicio">
+    <div class="inicio-card">
+      <h1 class="logo">⚽ Jogo da Memória</h1>
+      <p class="subtitulo">
+        Encontre os pares de cartas, marque pontos e administre o tempo de cada jogador.
+        Quem terminar com mais pontos vence!
+      </p>
 
-<div id="bolaP1"></div>
-<div id="bolaP2"></div>
+      <div class="botoes">
+        <button class="btn" onclick="iniciarJogo(1)">Fácil · 9 pares</button>
+        <button class="btn secundario" onclick="iniciarJogo(2)">Difícil · 12 pares</button>
+      </div>
 
-<!-- JOGO -->
-<div id="containerJogo">
-    <div id="game"></div>
-</div>
+      <div class="regras">
+        <div class="regra">
+          <strong>⏱ Tempo individual</strong>
+          Cada jogador tem seu próprio tempo. Quando acabar, a vez passa automaticamente.
+        </div>
+        <div class="regra">
+          <strong>🎯 Pontuação</strong>
+          Cada par encontrado vale 1 ponto.
+        </div>
+        <div class="regra">
+          <strong>🏆 Final</strong>
+          O jogo termina quando todos os pares forem encontrados ou quando os dois tempos acabarem.
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- GAME OVER -->
-<div id="gameOver">
-    <h1>🏆 Game Over</h1>
-    <p id="resultado"></p>
-    <button onclick="location.reload()">Jogar novamente</button>
-</div>
+  <!-- ÁREA DO JOGO -->
+  <main id="areaJogo" class="hidden">
+    <div id="topo">
+      <div id="boxP1" class="player-box ativo">
+        <div class="player-top">
+          <div class="player-title">Jogador 1</div>
+          <div class="turno-badge" id="badgeP1">Sua vez</div>
+        </div>
+        <div class="player-stats">
+          <div class="stat">
+            <div class="stat-label">Tempo</div>
+            <div class="stat-value" id="tempo1">30s</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Pontos</div>
+            <div class="stat-value" id="p1">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Acertos</div>
+            <div class="stat-value" id="bolas1">⚽ x0</div>
+          </div>
+        </div>
+      </div>
 
-<script>
-let nivel = 1;
-let pares = 9;
+      <div class="status-box">
+        <div id="statusTexto">Vez do Jogador 1<br>Pares restantes: 9</div>
+      </div>
 
-let cartas = [];
-let selecionadas = [];
+      <div id="boxP2" class="player-box">
+        <div class="player-top">
+          <div class="player-title">Jogador 2</div>
+          <div class="turno-badge" id="badgeP2">Aguardando</div>
+        </div>
+        <div class="player-stats">
+          <div class="stat">
+            <div class="stat-label">Tempo</div>
+            <div class="stat-value" id="tempo2">30s</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Pontos</div>
+            <div class="stat-value" id="p2">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Acertos</div>
+            <div class="stat-value" id="bolas2">⚽ x0</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-let jogadorAtual = 1;
-let tempo1 = 30;
-let tempo2 = 30;
+    <div id="containerJogo">
+      <div class="board-wrap">
+        <div id="game"></div>
+      </div>
+    </div>
+  </main>
 
-let pontos1 = 0;
-let pontos2 = 0;
+  <!-- GAME OVER -->
+  <div id="gameOver">
+    <div class="gameover-card">
+      <h1 class="gameover-title">🏆 Game Over</h1>
+      <p class="gameover-sub" id="motivoFinal">Fim de partida</p>
+      <div id="mensagemFinal"></div>
 
-let intervalo;
+      <div class="placares-finais">
+        <div class="placar-final">
+          <h3>Jogador 1</h3>
+          <div class="numero" id="finalP1">0</div>
+          <div class="tempo-final" id="finalT1">Tempo restante: 0s</div>
+        </div>
 
-function iniciarJogo(nivelEscolhido) {
+        <div class="placar-final">
+          <h3>Jogador 2</h3>
+          <div class="numero" id="finalP2">0</div>
+          <div class="tempo-final" id="finalT2">Tempo restante: 0s</div>
+        </div>
+      </div>
 
-    document.getElementById("inicio").style.display = "none";
-    document.getElementById("topo").style.display = "flex";
-    document.getElementById("containerJogo").style.display = "flex";
+      <button class="btn" onclick="reiniciarTudo()">Jogar novamente</button>
+    </div>
+  </div>
 
-    nivel = nivelEscolhido;
-    pares = (nivel === 1) ? 9 : 12;
+  <script>
+    let nivel = 1;
+    let pares = 9;
+    let deck = [];
+    let selecionadas = [];
+    let bloqueado = false;
+    let jogadorAtual = 1;
+    let tempo1 = 30;
+    let tempo2 = 30;
+    let pontos1 = 0;
+    let pontos2 = 0;
+    let paresEncontrados = 0;
+    let intervalo = null;
+    let jogoFinalizado = false;
 
-    tempo1 = (nivel === 1) ? 30 : 15;
-    tempo2 = tempo1;
-
-    document.getElementById("tempo1").innerText = tempo1;
-    document.getElementById("tempo2").innerText = tempo2;
-
-    iniciarNivel();
-}
-
-function gerarCartas() {
-    let base = [];
-    for (let i = 1; i <= pares; i++) {
-        base.push(i + ".jpg");
-    }
-    cartas = [...base, ...base];
-    cartas.sort(() => Math.random() - 0.5);
-}
-
-function iniciarNivel() {
-
-    document.getElementById("bolaP1").innerHTML = "";
-    document.getElementById("bolaP2").innerHTML = "";
-
-    gerarCartas();
-
-    const game = document.getElementById("game");
-    game.innerHTML = "";
-
-    game.style.gridTemplateColumns = "repeat(6, 120px)";
-
-    cartas.forEach((img) => {
-
-        let card = document.createElement("div");
-        card.classList.add("card");
-        card.dataset.img = img;
-
-        card.innerHTML = `
-            <div class="inner">
-                <div class="front"></div>
-                <div class="back">
-                    <img src="${img}">
-                </div>
-            </div>
-        `;
-
-        card.onclick = () => virarCarta(card);
-
-        game.appendChild(card);
-    });
-
-    iniciarTempo();
-}
-
-function virarCarta(card) {
-
-    if (selecionadas.length < 2 && !card.classList.contains("flipped")) {
-
-        card.classList.add("flipped");
-        selecionadas.push(card);
-
-        if (selecionadas.length === 2) {
-            setTimeout(verificar, 600);
-        }
-    }
-}
-
-function verificar() {
-
-    let [c1, c2] = selecionadas;
-
-    if (c1.dataset.img === c2.dataset.img) {
-
-        if (jogadorAtual === 1) {
-            pontos1++;
-            document.getElementById("p1").innerText = pontos1;
-            document.getElementById("bolaP1").innerHTML += "⚽";
-        } else {
-            pontos2++;
-            document.getElementById("p2").innerText = pontos2;
-            document.getElementById("bolaP2").innerHTML += "⚽";
-        }
-
-    } else {
-        c1.classList.remove("flipped");
-        c2.classList.remove("flipped");
-    }
-
-    selecionadas = [];
-
-    jogadorAtual = jogadorAtual === 1 ? 2 : 1;
-
-    checarFim();
-}
-
-function iniciarTempo() {
-
-    clearInterval(intervalo);
-
-    intervalo = setInterval(() => {
-
-        if (jogadorAtual === 1) {
-            tempo1--;
-            document.getElementById("tempo1").innerText = tempo1;
-        } else {
-            tempo2--;
-            document.getElementById("tempo2").innerText = tempo2;
-        }
-
-        if (tempo1 <= 0 && tempo2 <= 0) {
-            finalizar();
-        }
-
-    }, 1000);
-}
-
-function checarFim() {
-
-    if (pontos1 + pontos2 === pares) {
-        finalizar();
-    }
-}
-
-function finalizar() {
-
-    clearInterval(intervalo);
-
-    let resultado = "";
-
-    if (pontos1 > pontos2) resultado = "Jogador 1 venceu!";
-    else if (pontos2 > pontos1) resultado = "Jogador 2 venceu!";
-    else resultado = "Empate!";
-
-    document.getElementById("resultado").innerText =
-        resultado + `\nP1: ${pontos1} | P2: ${pontos2}`;
-
-    document.getElementById("gameOver").style.display = "flex";
-}
-</script>
-
-</body>
-</html>
+    const inicio = document.getElementById("inicio");
+    const areaJogo = document.getElementBy<span class="cursor">█</span>
