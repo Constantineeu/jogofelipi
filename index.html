@@ -35,7 +35,7 @@ body {
     font-size: 18px;
 }
 
-/* JOGO CENTRALIZADO */
+/* JOGO CENTRAL */
 #containerJogo {
     display: none;
     height: calc(100vh - 60px);
@@ -50,7 +50,7 @@ body {
     gap: 15px;
 }
 
-/* CARTAS MAIORES */
+/* CARTAS */
 .card {
     width: 120px;
     height: 120px;
@@ -91,8 +91,15 @@ body {
     border-radius: 12px;
 }
 
-/* BOLAS */
-#bolaArea {
+/* BOLAS SEPARADAS */
+#bolaP1 {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+}
+
+#bolaP2 {
     position: fixed;
     top: 10px;
     right: 10px;
@@ -136,7 +143,8 @@ button {
     <div>Jogador 2: <span id="tempo2">30</span>s | Pontos: <span id="p2">0</span></div>
 </div>
 
-<div id="bolaArea"></div>
+<div id="bolaP1"></div>
+<div id="bolaP2"></div>
 
 <!-- JOGO -->
 <div id="containerJogo">
@@ -195,14 +203,15 @@ function gerarCartas() {
 
 function iniciarNivel() {
 
-    document.getElementById("bolaArea").innerHTML = "";
+    document.getElementById("bolaP1").innerHTML = "";
+    document.getElementById("bolaP2").innerHTML = "";
+
     gerarCartas();
 
     const game = document.getElementById("game");
     game.innerHTML = "";
 
-    let colunas = 6;
-    game.style.gridTemplateColumns = `repeat(${colunas}, 120px)`;
+    game.style.gridTemplateColumns = "repeat(6, 120px)";
 
     cartas.forEach((img) => {
 
@@ -249,12 +258,12 @@ function verificar() {
         if (jogadorAtual === 1) {
             pontos1++;
             document.getElementById("p1").innerText = pontos1;
+            document.getElementById("bolaP1").innerHTML += "⚽";
         } else {
             pontos2++;
             document.getElementById("p2").innerText = pontos2;
+            document.getElementById("bolaP2").innerHTML += "⚽";
         }
-
-        document.getElementById("bolaArea").innerHTML += "⚽";
 
     } else {
         c1.classList.remove("flipped");
