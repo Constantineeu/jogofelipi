@@ -584,6 +584,8 @@
     </div>
   </div>
 
+  <audio id="musicaFundo" src="musica.mp3" loop preload="auto"></audio>
+
   <script>
     let nivel = 1;
     let pares = 9;
@@ -603,6 +605,7 @@
     const areaJogo = document.getElementById("areaJogo");
     const game = document.getElementById("game");
     const toast = document.getElementById("toast");
+    const musicaFundo = document.getElementById("musicaFundo");
 
     document.getElementById("btnFacil").addEventListener("click", () => iniciarJogo(1));
     document.getElementById("btnDificil").addEventListener("click", () => iniciarJogo(2));
@@ -624,6 +627,16 @@
       toast._timer = setTimeout(() => {
         toast.classList.remove("show");
       }, 2200);
+    }
+
+    function tocarMusica() {
+      musicaFundo.currentTime = 0;
+      musicaFundo.play().catch(() => {});
+    }
+
+    function pararMusica() {
+      musicaFundo.pause();
+      musicaFundo.currentTime = 0;
     }
 
     function iniciarJogo(nivelEscolhido) {
@@ -650,6 +663,7 @@
       renderizarTabuleiro();
       atualizarHUD();
       iniciarTempo();
+      tocarMusica();
 
       mostrarToast("Partida iniciada! Vez do Jogador 1.");
     }
@@ -848,6 +862,7 @@
       jogoFinalizado = true;
       clearInterval(intervalo);
       bloqueado = true;
+      pararMusica();
 
       let mensagem = "";
       if (pontos1 > pontos2) mensagem = "🏅 Jogador 1 venceu!";
@@ -869,6 +884,7 @@
 
     function reiniciarTudo() {
       clearInterval(intervalo);
+      pararMusica();
       game.innerHTML = "";
       document.getElementById("gameOver").style.display = "none";
       areaJogo.style.display = "none";
