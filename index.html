@@ -266,6 +266,16 @@
       backdrop-filter: blur(8px);
     }
 
+    .acoes-jogo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    #btnIniciarPartida {
+      display: none;
+    }
+
     #game {
       display: grid;
       grid-template-columns: repeat(6, minmax(90px, 120px));
@@ -555,6 +565,9 @@
 
     <div id="containerJogo">
       <div class="board-wrap">
+        <div class="acoes-jogo">
+          <button class="btn" id="btnIniciarPartida">Iniciar</button>
+        </div>
         <div id="game"></div>
       </div>
     </div>
@@ -600,16 +613,19 @@
     let paresEncontrados = 0;
     let intervalo = null;
     let jogoFinalizado = false;
+    let partidaIniciada = false;
 
     const inicio = document.getElementById("inicio");
     const areaJogo = document.getElementById("areaJogo");
     const game = document.getElementById("game");
     const toast = document.getElementById("toast");
     const musicaFundo = document.getElementById("musicaFundo");
+    const btnIniciarPartida = document.getElementById("btnIniciarPartida");
 
     document.getElementById("btnFacil").addEventListener("click", () => iniciarJogo(1));
     document.getElementById("btnDificil").addEventListener("click", () => iniciarJogo(2));
     document.getElementById("btnReiniciar").addEventListener("click", reiniciarTudo);
+    btnIniciarPartida.addEventListener("click", comecarPartida);
 
     function embaralhar(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -654,13 +670,26 @@
       selecionadas = [];
       bloqueado = false;
       jogoFinalizado = false;
+      partidaIniciada = false;
 
       inicio.style.display = "none";
       areaJogo.style.display = "block";
       document.getElementById("gameOver").style.display = "none";
+      btnIniciarPartida.style.display = "inline-block";
 
       criarCartas();
       renderizarTabuleiro();
+      atualizarHUD();
+
+      mostrarToast("Clique em Iniciar para começar a partida.");
+    }
+
+    function comecarPartida() {
+      if (partidaIniciada || jogoFinalizado) return;
+
+      partidaIniciada = true;
+      btnIniciarPartida.style.display = "none";
+
       atualizarHUD();
       iniciarTempo();
       tocarMusica();
@@ -706,7 +735,7 @@
     }
 
     function virarCarta(card) {
-      if (jogoFinalizado || bloqueado) return;
+      if (!partidaIniciada || jogoFinalizado || bloqueado) return;
       if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
       if ((jogadorAtual === 1 && tempo1 <= 0) || (jogadorAtual === 2 && tempo2 <= 0)) return;
       if (selecionadas.length === 2) return;
@@ -782,7 +811,7 @@
       clearInterval(intervalo);
 
       intervalo = setInterval(() => {
-        if (jogoFinalizado) return;
+        if (jogoFinalizado || !partidaIniciada) return;
 
         if (jogadorAtual === 1) {
           if (tempo1 > 0) tempo1--;
@@ -833,19 +862,32 @@
       const badgeP1 = document.getElementById("badgeP1");
       const badgeP2 = document.getElementById("badgeP2");
 
-      boxP1.classList.toggle("ativo", jogadorAtual === 1 && !jogoFinalizado && tempo1 > 0);
-      boxP2.classList.toggle("ativo", jogadorAtual === 2 && !jogoFinalizado && tempo2 > 0);
+      boxP1.classList.toggle("ativo", jogadorAtual === 1 && !jogoFinalizado && tempo1 > 0 && partidaIniciada);
+      boxP2.classList.toggle("ativo", jogadorAtual === 2 && !jogoFinalizado && tempo2 > 0 && partidaIniciada);
 
-      badgeP1.textContent = (jogadorAtual === 1 && tempo1 > 0 && !jogoFinalizado) ? "Sua vez" : (tempo1 <= 0 ? "Sem tempo" : "Aguardando");
-      badgeP2.textContent = (jogadorAtual === 2 && tempo2 > 0 && !jogoFinalizado) ? "Sua vez" : (tempo2 <= 0 ? "Sem tempo" : "Aguardando");
+      badgeP1.textContent =
+        !partidaIniciada && !jogoFinalizado
+          ? "Aguardando"
+          : (jogadorAtual === 1 && tempo1 > 0 && !jogoFinalizado)
+            ? "Sua vez"
+            : (tempo1 <= 0 ? "Sem tempo" : "Aguardando");
 
-      document.getElementById("tempo1").classList.toggle("tempo-alerta", tempo1 <= 5);
-      document.getElementById("tempo2").classList.toggle("tempo-alerta", tempo2 <= 5);
+      badgeP2.textContent =
+        !partidaIniciada && !jogoFinalizado
+          ? "Aguardando"
+          : (jogadorAtual === 2 && tempo2 > 0 && !jogoFinalizado)
+            ? "Sua vez"
+            : (tempo2 <= 0 ? "Sem tempo" : "Aguardando");
+
+      document.getElementById("tempo1").classList.toggle("tempo-alerta", tempo1 <= 5 && partidaIniciada);
+      document.getElementById("tempo2").classList.toggle("tempo-alerta", tempo2 <= 5 && partidaIniciada);
 
       const restantes = pares - paresEncontrados;
       let textoStatus = `Vez do Jogador ${jogadorAtual}<br>Pares restantes: ${restantes}`;
 
-      if (tempo1 <= 0 && tempo2 > 0) {
+      if (!partidaIniciada && !jogoFinalizado) {
+        textoStatus = `Tabuleiro pronto<br>Clique em Iniciar`;
+      } else if (tempo1 <= 0 && tempo2 > 0) {
         textoStatus = `Jogador 1 sem tempo<br>Vez do Jogador 2`;
       } else if (tempo2 <= 0 && tempo1 > 0) {
         textoStatus = `Jogador 2 sem tempo<br>Vez do Jogador 1`;
@@ -862,6 +904,7 @@
       jogoFinalizado = true;
       clearInterval(intervalo);
       bloqueado = true;
+      btnIniciarPartida.style.display = "none";
       pararMusica();
 
       let mensagem = "";
@@ -885,8 +928,10 @@
     function reiniciarTudo() {
       clearInterval(intervalo);
       pararMusica();
+      partidaIniciada = false;
       game.innerHTML = "";
       document.getElementById("gameOver").style.display = "none";
+      btnIniciarPartida.style.display = "none";
       areaJogo.style.display = "none";
       inicio.style.display = "flex";
     }
