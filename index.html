@@ -769,14 +769,13 @@
         selecionadas = [];
         bloqueado = false;
         atualizarHUD();
-        mostrarToast(`Jogador ${jogadorAtual} encontrou um par!`);
+        mostrarToast(`Jogador ${jogadorAtual} encontrou um par e joga novamente!`);
 
         if (paresEncontrados === pares) {
           finalizarJogo("Todos os pares foram encontrados!");
           return;
         }
 
-        trocarJogador();
       } else {
         setTimeout(() => {
           c1.classList.remove("flipped");
